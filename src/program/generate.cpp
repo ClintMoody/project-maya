@@ -2555,11 +2555,10 @@ static int glm_pack_generate(const Options& o) {
     static const int64_t multi_room = (int64_t) env_num("STRATA_GLM_MULTI_ROOM", 16384);
     static const int multi_boundary_every = (int) env_num("STRATA_GLM_MULTI_BOUNDARY", 32);
     static const bool multi_spec = env_num("STRATA_GLM_MULTI_SPEC", 1) != 0;
-    // Task 4.3: the drafter under concurrency, default ON per Clint's approval (2026-10-24, after the
-    // G4.3b window's GATE PASS: the stint scheme's outputs byte-identical to the serial MTP path under
-    // concurrency, +12.5% aggregate vs the incumbent pipelined reference in the same window).  On: a
-    // bounded speculative stint per scheduler step, round-robin over the running requests,
-    // STRATA_GLM_SPEC_STINT tokens each (8)
+    // Task 4.3: the drafter under concurrency, default ON: the stint scheme's outputs were
+    // byte-identical to the serial MTP path under concurrency, +12.5% aggregate vs the incumbent
+    // pipelined reference in the same window.  On: a bounded speculative stint per scheduler step,
+    // round-robin over the running requests, STRATA_GLM_SPEC_STINT tokens each (8)
     static const bool multi_conc = env_num("STRATA_GLM_MTP_CONC", 1) != 0;
     static const int multi_spec_stint = (int) env_num("STRATA_GLM_SPEC_STINT", 8);
     long long multi_spec_rot = 0;
