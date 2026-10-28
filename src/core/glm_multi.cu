@@ -365,7 +365,7 @@ void Glm5Model::seq_bind(int s) {
     std::swap(o.dsa_ik, dsa_ik_);
     std::swap(o.dsa_ig, dsa_ig_);
     std::swap(o.dsa_pool, dsa_pool_);
-    o.kv = kv_;   // (KV streaming: the bound sequence's stream lives in kv_, its SeqCtx holds none — upstream v1.1.29)
+    o.kv = kv_;   // (KV streaming: the bound sequence's stream lives in kv_, its SeqCtx holds none; upstream v1.1.29)
     SeqCtx& n = seq_[(size_t) s];
     state_ = n.state;
     pos_ = n.pos;
@@ -522,7 +522,7 @@ bool Glm5Model::seq_alloc_arenas(std::string& err) {
     if (multi_mtp_setting() > 0 && !mtpw_alloc(err)) return false;
     // one GPU: the sequences decode together (glm_rows.cu), their activations allocated here, before the pool;
     // ours keeps the fast-mode gate (the rows arena is fast-path-bound through rows_ok/split_rows_ok, so slow mode
-    // would allocate VRAM nothing reads — upstream v1.1.29 calls it unconditionally, diverged deliberately)
+    // would allocate VRAM nothing reads; upstream v1.1.29 calls it unconditionally, diverged deliberately)
     if (n_parts_ == 1 && fast_mode_) return rows_alloc(err);
     return true;
 }
