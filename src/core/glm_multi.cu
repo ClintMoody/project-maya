@@ -492,7 +492,7 @@ bool Glm5Model::seq_alloc_arenas(std::string& err) {
     const size_t one_bak = getenv("STRATA_GLM_NO_MTP") == nullptr && getenv("STRATA_GLM_NO_SPEC") == nullptr
                                ? spec_kda_bytes() : 0;
     seq_bytes_reserved_ = ((size_t) n - 1) * (one_arena + one_snaps + one_bak) + one_snaps;
- // the full-cap reservation starves the
+    // Task 4.1 amendment (the window's 2026-10-22 finding): the full-cap reservation starves the
     // expert pool while the ladder cannot reach pressure at the production context (the 2-GPU
     // split halves the per-state cost). The pool sizing subtracts the FLOOR instead: the first
  // STRATA_GLM_SEQ_FLOOR states' bytes stay guaranteed (the common case keeps 
