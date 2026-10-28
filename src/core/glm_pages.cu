@@ -1,4 +1,4 @@
-// src/core/glm_pages.cu -- page pool manager (PLAN Task 1.1)
+// src/core/glm_pages.cu -- page pool manager
 //
 // Bump allocator over one GPU slab: page_alloc hands out either a released
 // page from the free list or the next never-touched page; page_release and
@@ -8,7 +8,7 @@
 // device. Counters track allocs, frees, evicts and the live count for the
 // leak checks (live = outstanding allocations: ++ on alloc, -- on free).
 //
-// 2026-10-17 remediation (Task 1.1 review, dag-run 034hakbOLuKAuEw40ja2Cu):
+// Remediation (Task 1.1 review):
 // init() publishes nothing until every allocation and copy has succeeded,
 // and when the slab does not fit beside production (~104 MiB allocatable at
 // 23.7 GB in use) it shrinks the pool by halves down to a 4-page floor (the
@@ -184,7 +184,7 @@ int32_t GlmPages::evict_lru(int32_t n) {
 }
 
 // Task 3.2 Step 3: the eviction unit check, as a free function so the
-// G3.2 test binary can link it without touching the header (the task's
+// test binary can link it without touching the header (the branch's
 // Files list is the three .cu/.cpp files only).  The check: fill the pool,
 // force eviction, confirm ONLY refcount-0 pages were pushed back and the
 // in-use pages' gathers stay bit-exact (the slab bytes of every refcounted

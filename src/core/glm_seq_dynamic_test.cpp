@@ -183,7 +183,7 @@ int main(int argc, char** argv) {
     // glm_multi.cu's selftest (the byte-identity legs read the state's private
     // regions - the glm_pages.cu selftest pattern: full access, linked by this
     // binary); the test file holds the pack path + the counters only.  Red
-    // first: the selftest body lands with the implementation (the G3.1 shape -
+    // first: the selftest body lands with the implementation (the registry shape -
     // the undefined reference is the red).
     {
         int pc = 0, pf = 0;

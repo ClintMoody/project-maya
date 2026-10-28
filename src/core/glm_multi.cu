@@ -498,7 +498,7 @@ bool Glm5Model::seq_alloc_arenas(std::string& err) {
     const size_t one_bak = getenv("STRATA_GLM_NO_MTP") == nullptr && getenv("STRATA_GLM_NO_SPEC") == nullptr
                                ? spec_kda_bytes() : 0;
     seq_bytes_reserved_ = ((size_t) n - 1) * (one_arena + one_snaps + one_bak) + one_snaps;
-    // Task 4.1 amendment (the window's 2026-10-22 finding): the full-cap reservation starves the
+    // Task 4.1 amendment: the full-cap reservation starves the
     // expert pool while the ladder cannot reach pressure at the production context (the 2-GPU
     // split halves the per-state cost). The pool sizing subtracts the FLOOR instead: the first
     // STRATA_GLM_SEQ_FLOOR states' bytes stay guaranteed (the common case keeps Task 2.1's
@@ -1150,8 +1150,8 @@ void Glm5Model::prefix_finalize(const std::vector<int32_t>& tokens, int64_t pos_
             }
             // the store's pin, NOT a request's hold: the registration lands
             // refs 0 so the Step 3 eviction + the cap-drop can reclaim the
-            // tile when no request holds it (the 2026-10-23 22:06 window's
-            // 0 evictions among 19 tiles: the registration's own ref pinned
+            // tile when no request holds it (an earlier run's
+            // 0 evictions among 19 tiles showed the registration's own ref pinned
             // every tile, the capture's eviction helper found none evictable
             // and the capture refused).  A request's hold comes only from the
             // intake's acquire (prefix_refs_), released with the request.
@@ -2284,7 +2284,7 @@ bool Glm5Model::glm_pause_snapshots_selftest(const std::string& pack, int* check
         }
         req("the held tile dropped clean",
             g_prefix_blocks.empty() && d.lat_pages_.counters().live == 0);
-        // E: the REAL finalize lifecycle (the 2026-10-23 window's 0 evictions):
+        // E: the REAL finalize lifecycle (an earlier run's 0 evictions showed why):
         // the store's registration is the tile's pin, NOT a request's hold -
         // refs must land 0 so the Step 3 eviction + the cap-drop can reclaim
         // the tile when no request holds it.  The pending chunk is built in

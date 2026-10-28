@@ -1,7 +1,7 @@
-// glm_pages_parity.cpp -- page pool manager unit test (PLAN Task 1.1, TDD)
+// glm_pages_parity.cpp -- page pool manager unit test (TDD)
 // Run: ctest -R glm_pages_parity  (ctest invokes the binary with --selftest)
 //
-// 2026-10-17 remediation (dag-run 034hakbOLuKAuEw40ja2Cu's review): the
+// Remediation review: the
 // first gate run never executed (the executor recorded a claimed '0
 // failures' and the committed binary actually segfaulted beside production,
 // where init's 176 MiB slab OOMs and the failed init left cleared vectors).
@@ -18,7 +18,7 @@
 
 using strata::GlmPages;
 
-namespace strata {   // G3.2: the eviction unit checks live in glm_pages.cu (free functions,
+namespace strata {   // the eviction unit checks live in glm_pages.cu (free functions,
                      // linked by this binary without touching the header)
 bool glm_pages_lru_selftest();
 bool glm_pages_pressure_selftest();
@@ -140,17 +140,17 @@ int main(int argc, char** argv) {
         require("env pool pages at the 256 default", GlmPages::env_pool_pages(8 * 1024) == 512, 0);
     }
 
-    // G3.2: the eviction unit check + the pressure branch (the selftests in glm_pages.cu;
+    // the eviction unit check + the pressure branch (the selftests in glm_pages.cu;
     // their own check lines print as they run)
     {
         setenv("STRATA_GLM_PAGE_POOL_GB", "", 1);   // a small pool fits beside production
         unsetenv("STRATA_GLM_PAGE_SIZE");
         const bool lru_ok = strata::glm_pages_lru_selftest();
-        require("G3.2 lru_selftest: fill, force evict, in-use gathers bit-exact", lru_ok ? 1 : 0, 0);
+        require("lru_selftest: fill, force evict, in-use gathers bit-exact", lru_ok ? 1 : 0, 0);
         const bool pressure_ok = strata::glm_pages_pressure_selftest();
-        require("G3.2 pressure_selftest: the full-pool sweep serves the alloc", pressure_ok ? 1 : 0, 0);
+        require("pressure_selftest: the full-pool sweep serves the alloc", pressure_ok ? 1 : 0, 0);
         const bool idle_ok = strata::glm_pages_idle_sweep_selftest();
-        require("G4.3 idle_sweep_selftest: the rung-1 full sweep + the pool off", idle_ok ? 1 : 0, 0);
+        require("idle_sweep_selftest: the rung-1 full sweep + the pool off", idle_ok ? 1 : 0, 0);
     }
 
     printf("%d checks, %d failures\n", g_checks, g_failures);

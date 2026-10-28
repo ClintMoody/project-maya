@@ -1,4 +1,4 @@
-// include/strata/core/glm_pages.hpp -- page pool manager (PLAN Task 1.1)
+// include/strata/core/glm_pages.hpp -- page pool manager
 //
 // One GPU slab, bump-allocated into pages of page_size tokens each. The
 // host keeps a free list and per-page refcounts; a logical->physical
@@ -7,7 +7,7 @@
 // pinned page survives pressure. Page size comes from STRATA_GLM_PAGE_SIZE
 // (default 256), pool size from STRATA_GLM_PAGE_POOL_GB.
 //
-// 2026-10-17 remediation: init() tries the requested pool and shrinks it by
+// Remediation: init() tries the requested pool and shrinks it by
 // halves (floor 4 pages, or the request itself when smaller) until the slab
 // fits beside production; a failed init leaves an EMPTY pool (n_pages() 0,
 // page_alloc() -1), and shutdown() resets to that same empty state.

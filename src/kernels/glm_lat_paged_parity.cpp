@@ -5,7 +5,7 @@
 // SHUFFLED (non-identity) table so the physical reordering is observable.
 // With STRATA_GLM_PAGED unset the incumbent path is untouched: lat_table
 // stays null and every write/gather keeps the contiguous offsets.
-// SeqCtx lives in strata/core/glm_model.hpp (the corrected 2026-10-17
+// SeqCtx lives in strata/core/glm_model.hpp (the corrected
 // anchor: glm_fast_state.hpp does not exist in the tree).
 #include <cstdio>
 #include <cstring>
@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     const char* paged_env = getenv("STRATA_GLM_PAGED");
     int flag_off = (paged_env == NULL || paged_env[0] == '\0' ||
                     (paged_env[0] == '0' && paged_env[1] == '\0'));
-    // (TDD artifact 2026-10-17, Task 1.3's flag-on run: the check became state-asserting)
+    // (TDD artifact, Task 1.3's flag-on run: the check became state-asserting)
     if (flag_off)
         require("flag-off incumbent (STRATA_GLM_PAGED unset)", flag_off, 0);
     else

@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
   // GLM-5.3-Flash geometry (glm_model.hpp:72-92: d_inner 8192 = kda_head_dim
   // 128 x n_head 64, d_conv 4, idx_kpool 4, idx_key 128), one boundary =
   // 34 KDA layers' runs + 11 DSA caches' open key pool (2 rings x
-  // (idx_kpool-1) x idx_key rows each); MEASUREMENTS.md's 2026-10-15 D6 row
+  // (idx_kpool-1) x idx_key rows each); the measured D6 row
   // (152.67 MB per sequence per boundary). The snapshot rides the latent
   // pool's slab pages (page_size 256 rows x 1024 B = 256 KB/page) and the
   // consequence row must still hold: 13 boundaries' snapshot + canonical

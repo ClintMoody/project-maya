@@ -3191,11 +3191,11 @@ static int glm_pack_generate(const Options& o) {
             cur_img_pos = std::move(w2.img_pos);
             cur_img_rows = std::move(w2.img_rows);
             gen_admit(w2.rid, w2.ids, w2.max_new, w2.rq);
-            // Task 4.1 (RUN 2's 2026-10-22 finding): a wait-gate re-push (a context fits but no
+            // Task 4.1: a wait-gate re-push (a context fits but no
             // VRAM, gate 2, or no context at all, gate 1) leaves the entry AT THE BACK, not
             // consumed - staying in this loop re-admits the same request forever (RUN 2:
             // 6,143,865 wait lines for request 4 alone, the scheduler starved mid-storm, all
-            // twelve requests lost).  Break instead: the next scheduler iteration retries the
+            // twelve requests were lost in an earlier run).  Break instead: the next scheduler iteration retries the
             // head after a decode step, so the running requests make progress and free what
             // the waiter needs.
             if (!pending.empty() && pending.back().rid == w2.rid) break;

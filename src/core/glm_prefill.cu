@@ -4816,8 +4816,8 @@ bool Glm5Model::prefill_run(const std::vector<int32_t>& tokens, std::string& err
                                             // tail thread captures its own share; without this the
                                             // finalize sees 1 of np parts per chunk and drops every
                                             // pending tile as incomplete, so the store stays empty
-                                            // and the intake always misses - the 2026-10-20 00:44
-                                            // window's skip 0/1024 with 0 tiles in the store)
+                                            // and the intake always misses (an earlier run
+                                            // skipped 0/1024 with 0 tiles in the store)
                 prefix_capture_part(p0 + T, p0, pos_start);
             ++pf_->chunks;
             // gaps: boundary c - once every later part has read its chunk before it, the other requests decode, then
