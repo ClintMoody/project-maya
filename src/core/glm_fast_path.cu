@@ -19,6 +19,7 @@
 #include "glm_dsa_fast.hpp"   // glm-dsa B2.4
 #include "glm_residual.hpp"   // glm-dsa B2.3
 #include "glm_tier_numa.hpp"   // glm-dsa B8.2-B8.4
+#include "glm_ablate.cuh"
 #include "strata/core/expert_cache.hpp"
 #include "strata/core/glm_model.hpp"
 #include "strata/core/glm_dsa_split.hpp"   // glm-dsa B6.3
@@ -1288,6 +1289,7 @@ bool Glm5Model::fast_setup(std::string& err) {
                              (double) (f0 > f1 ? f0 - f1 : 0) / 1e6);
             }
         }
+        (void) glm_ablate::vec((int) g_.n_embd);   // STRATA_GLM_ABLATE: the direction on this device, before the pool is sized
         // a parallel split load: the parts pin their prompt paths, size their pools and plan their RAM tiers one at a
         // time, in part order - the first part's RAM measurement then sees none of the later parts' prompt staging, as
         // when they load one after another (it took that staging twice: once pinned, once in the headroom)
@@ -6407,6 +6409,10 @@ bool Glm5Model::fast_layers(int64_t p, bool hop_in, std::string& err) {
         const auto body = [&]() -> bool {
         // ---- the attention-side read (fused with the previous FFN's write)
         gf::HcArgs h;
+        if (il != l0_) {   // STRATA_GLM_ABLATE per layer: both operands of layer il - 1's FFN write
+            glm_ablate::layer_rows(il - 1, F->ffn, 1, g.n_embd, s);
+            glm_ablate::layer_rows(il - 1, Rc, g.hc, g.n_embd, s);
+        }
         h.block_out = il == l0_ ? nullptr : F->ffn;
         h.R_old = Rc;
         h.R_new = Ro;
@@ -6493,6 +6499,7 @@ bool Glm5Model::fast_layers(int64_t p, bool hop_in, std::string& err) {
         // ---- the FFN-side read (fused with the mixer's write)
         const auto ffn_body = [&]() -> bool {
             gf::HcArgs hf = h;
+        glm_ablate::rows(F->mixer, 1, g.n_embd, s);   // STRATA_GLM_ABLATE: the mixer's write
             hf.block_out = F->mixer;
             hf.R_old = Rc;
             hf.R_new = Ro;
@@ -6530,6 +6537,7 @@ bool Glm5Model::fast_layers(int64_t p, bool hop_in, std::string& err) {
                     deferred = true;
                 }
             }
+            glm_ablate::rows(F->ffn, 1, g.n_embd, s);   // STRATA_GLM_ABLATE: the FFN's write
             if (dumps) fast_dump(s, "ffn_out-" + std::to_string(il), F->ffn, g.n_embd);
             return true;
         };
@@ -6562,6 +6570,8 @@ bool Glm5Model::fast_layers(int64_t p, bool hop_in, std::string& err) {
         if (const int fe = glmfast::submit_every(); fe > 0 && (il - l0_) % fe == 0) glmfast::submit_queued(s);
     }
     // the last layer's write half: R (in the OTHER buffer) = post x ffn + comb . R
+    glm_ablate::layer_rows(l1_ - 1, F->ffn, 1, g.n_embd, s);   // STRATA_GLM_ABLATE per layer
+    glm_ablate::layer_rows(l1_ - 1, Rc, g.hc, g.n_embd, s);
     gf::hc_post(F->ffn, Rc, F->post, F->comb, g.n_embd, Ro, s);
     if (F->prof_on) F->mark("hc_post_end");
     // keep the convention "the residual lives at state_" for the hop and the head: copy back
@@ -6600,6 +6610,7 @@ bool Glm5Model::fast_token(int32_t token, std::string& err) {
                  g.n_embd);
     if (const float* img = image_row(p)) std::memcpy(F->emb_h, img, (size_t) g.n_embd * sizeof(float));   // an image
     cudaMemcpyAsync(F->emb, F->emb_h, (size_t) g.n_embd * sizeof(float), cudaMemcpyHostToDevice, F->cs);
+    glm_ablate::rows(F->emb, 1, g.n_embd, F->cs);   // STRATA_GLM_ABLATE
     glmres::res_embed(g, F->emb, state_, F->cs);   // glm-dsa B2.3 (mHC: gf::embed_streams)
     if (!fast_layers(p, false, err)) return false;
     // each later part of a split: the residual crosses over through the previous part's pinned hop buffer, the
@@ -7272,6 +7283,7 @@ bool Glm5Model::spec_head(int64_t p, int32_t token, std::string& err) {
                  g.n_embd);
     if (const float* img = image_row(p)) std::memcpy(F->emb_h, img, (size_t) g.n_embd * sizeof(float));   // an image
     cudaMemcpyAsync(F->emb, F->emb_h, (size_t) g.n_embd * sizeof(float), cudaMemcpyHostToDevice, F->cs);
+    glm_ablate::rows(F->emb, 1, g.n_embd, F->cs);   // STRATA_GLM_ABLATE
     glmres::res_embed(g, F->emb, state_, F->cs);   // glm-dsa B2.3
     lap(2);
     if (cancellable) {
