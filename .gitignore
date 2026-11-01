@@ -58,3 +58,5 @@ build-vision.bat
 *.done
 /third_party/*.zip
 
+# generated test fixture (tools/glm_synth_pack.py), not source
+/data/glm5-synth-pack/
