@@ -60,3 +60,4 @@ build-vision.bat
 
 # generated test fixture (tools/glm_synth_pack.py), not source
 /data/glm5-synth-pack/
+/data/glm5-synth-pack.f32/
