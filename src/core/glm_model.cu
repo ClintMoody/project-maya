@@ -3601,7 +3601,6 @@ bool strata::core::Glm5Model::load_pack(const std::string& pack_dir, int64_t max
                      lat_pages_.n_pages(), (int) lat_pages_.page_size(), (int) bytes_per_token,
  lat_table_ ? "on": "off"); //Step 2's window diagnostic
     }
->>>>>>> f397014 (GLM: a dynamic multi-sequence scheduler, MTP speculation and the paged path's wiring)
 
     const int64_t ff_max = std::max<long long>({g_.n_ff_dense, (int64_t) g_.n_ff_exp * g_.n_shared});
     int64_t s = 0;
